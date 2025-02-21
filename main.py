@@ -84,8 +84,8 @@ def extrair_informacoes(file_bytes, mime_type) -> (pd.DataFrame, bool):
         st.error(f"Erro ao processar o arquivo: {e}")
         return pd.DataFrame(), False
 
-st.set_page_config(page_title='Extrato IA', layout='wide')
-st.title('Extrato IA - Processamento Inteligente de Arquivos')
+st.set_page_config(page_title='Extratórios', layout='wide')
+st.title('Extratórios - Processamento Inteligente de Arquivos (v3)')
 uploaded_files = st.file_uploader(
     "Carregue arquivos PDF, Imagem, Texto ou CSV", 
     type=['pdf','png','jpg','jpeg','txt','csv'], 
