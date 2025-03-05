@@ -20,7 +20,6 @@ st.set_page_config(
     }
 )
 
-
 # Configura o logger para gravar no arquivo "app.log"
 logging.basicConfig(
     filename="app.log",
@@ -45,11 +44,7 @@ genai.configure(api_key=api_key)
 
 def extrair_informacoes(file_bytes, mime_type) -> (pd.DataFrame, bool):
     """
-    Envia o arquivo para o modelo gemini-2.0-pro-exp-02-05 e acumula os dados extraídos.
-    Com response_mime_type "text/plain", a saída é tratada para extrair o JSON contido.
-    Se a resposta ultrapassar o limite de tokens, a função solicita continuação até que
-    todo o conteúdo seja processado.
-
+    Extrai dados de arquivos não-OFX utilizando o modelo do Google Generative AI.
     Retorna um DataFrame com os registros extraídos e um booleano indicando se houve truncamento.
     """
     try:
@@ -102,7 +97,7 @@ def extrair_informacoes(file_bytes, mime_type) -> (pd.DataFrame, bool):
                 houve_truncamento = True
 
             text_response = response.text.strip()
-            logger.debug(f"Texto bruto da resposta: {text_response[:300]}...")  # Log dos primeiros 300 caracteres
+            logger.debug(f"Texto bruto da resposta: {text_response[:300]}...")
 
             # Extração do trecho que contenha um array JSON
             match = re.search(r'(\[.*\])', text_response, re.DOTALL)
@@ -153,7 +148,7 @@ def object_to_dict(obj):
         return [object_to_dict(item) for item in obj]
     else:
         return obj
-    
+
 def extrair_ofx(file_bytes):
     """
     Processa arquivos OFX e retorna um DataFrame com as colunas:
@@ -164,13 +159,10 @@ def extrair_ofx(file_bytes):
         file_str = file_bytes.decode("us-ascii", errors="ignore")
         ofx = OfxParser.parse(io.StringIO(file_str))
         
-        # Exemplo de uso:
-        #ofx_dict = object_to_dict(ofx)
-        #st.json(ofx_dict)
-        
         # Extrai o nome do banco a partir de account.institution.organization
         banco = ""
-        if hasattr(ofx, "account") and hasattr(ofx.account, "institution") and hasattr(ofx.account.institution, "organization"):
+        if (hasattr(ofx, "account") and hasattr(ofx.account, "institution") 
+            and hasattr(ofx.account.institution, "organization")):
             banco = ofx.account.institution.organization.strip()
 
         transactions = []
@@ -178,7 +170,9 @@ def extrair_ofx(file_bytes):
             data = transaction.date.strftime("%d/%m/%Y")
             historico = transaction.memo if transaction.memo else transaction.payee
             documento = transaction.checknum if transaction.checknum else ""
-            debito_credito = "C" if transaction.amount >= 0 else "D"
+            # Mapeia "Débito/Crédito" com base no tipo (debit -> "D", credit -> "C")
+            t_type = getattr(transaction, "type", "").lower()
+            debito_credito = "D" if t_type == "debit" else "C"
             valor = round(transaction.amount, 2)
             origem_destino = transaction.payee if transaction.payee else ""
             trans_dict = {
@@ -200,11 +194,13 @@ def extrair_ofx(file_bytes):
     
 # Interface principal do Streamlit
 st.title("Extratórios - Processamento Inteligente de Arquivos (v5)")
-st.write("Faça o upload de arquivos PDF, Imagem, Texto ou CSV para extrair informações.")
+st.write("Faça o upload de arquivos PDF, Imagem, Texto, CSV ou OFX para extrair informações.")
 
-uploaded_files = st.file_uploader("Carregue arquivos PDF, Imagem, Texto ou CSV", 
-                                  type=['pdf', 'png', 'jpg', 'jpeg', 'txt', 'csv', 'ofx'], 
-                                  accept_multiple_files=True)
+uploaded_files = st.file_uploader(
+    "Carregue arquivos PDF, Imagem, Texto, CSV ou OFX", 
+    type=['pdf', 'png', 'jpg', 'jpeg', 'txt', 'csv', 'ofx'], 
+    accept_multiple_files=True
+)
 
 for uploaded_file in uploaded_files:
     st.subheader(f"📄 Processando: {uploaded_file.name}")
@@ -214,7 +210,6 @@ for uploaded_file in uploaded_files:
 
     # Verifica se o arquivo é OFX com base na extensão
     if uploaded_file.name.lower().endswith(".ofx"):
-        # Se desejar, pode definir o nome do banco manualmente ou extrair de alguma outra forma
         dados_extrato = extrair_ofx(file_bytes)
         foi_truncado = False  # Não se aplica para OFX
     else:
@@ -226,5 +221,40 @@ for uploaded_file in uploaded_files:
     if not dados_extrato.empty:
         st.success("✅ Extração concluída!")
         st.dataframe(dados_extrato)
+
+        # Cálculo dos resumos
+        # Separa as transações de crédito e débito
+        credit_df = dados_extrato[dados_extrato["Débito/Crédito"] == "C"]
+        debit_df = dados_extrato[dados_extrato["Débito/Crédito"] == "D"]
+        
+        # Quantidade e total de créditos
+        credit_count = len(credit_df)
+        credit_total = credit_df["Valor"].sum()
+        
+        # Quantidade e total de débitos (usando o valor absoluto para débitos)
+        debit_count = len(debit_df)
+        debit_total = debit_df["Valor"].abs().sum() * -1
+        
+        # Totais gerais
+        total_count = len(dados_extrato)
+        # O saldo total é calculado como (valor total dos débitos) - (valor total dos créditos)
+        saldo_total = credit_total + debit_total 
+        
+        # Cria um DataFrame resumo
+        resumo = pd.DataFrame({
+            "Categoria": ["Crédito", "Débito", "Total"],
+            "Quantidade": [credit_count, debit_count, total_count],
+            "Valor": [credit_total, debit_total, saldo_total]
+        }, columns=["Categoria", "Quantidade", "Valor"],)
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:  
+            st.write("### Resumo")
+            st.table(resumo)
+        with col2:
+            pass
+            
+        st.divider()
     else:
         st.warning("⚠️ Nenhuma informação extraída. Tente outro arquivo.")
