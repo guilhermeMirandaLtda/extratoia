@@ -6,6 +6,7 @@ import io
 import os
 import logging
 import re
+from ofxparse import OfxParser 
 
 st.set_page_config(
     page_title="Extratórios",
@@ -142,12 +143,67 @@ def extrair_informacoes(file_bytes, mime_type) -> (pd.DataFrame, bool):
         logger.exception("Erro durante o processamento do arquivo:")
         return pd.DataFrame(), False
 
+def object_to_dict(obj):
+    if hasattr(obj, '__dict__'):
+        result = {}
+        for key, value in obj.__dict__.items():
+            result[key] = object_to_dict(value)
+        return result
+    elif isinstance(obj, list):
+        return [object_to_dict(item) for item in obj]
+    else:
+        return obj
+    
+def extrair_ofx(file_bytes):
+    """
+    Processa arquivos OFX e retorna um DataFrame com as colunas:
+    "Data", "Histórico", "Documento", "Débito/Crédito", "Valor", "Origem/Destino", "Banco"
+    """
+    try:
+        # Converte os bytes para string e utiliza StringIO para simular um arquivo
+        file_str = file_bytes.decode("us-ascii", errors="ignore")
+        ofx = OfxParser.parse(io.StringIO(file_str))
+        
+        # Exemplo de uso:
+        #ofx_dict = object_to_dict(ofx)
+        #st.json(ofx_dict)
+        
+        # Extrai o nome do banco a partir de account.institution.organization
+        banco = ""
+        if hasattr(ofx, "account") and hasattr(ofx.account, "institution") and hasattr(ofx.account.institution, "organization"):
+            banco = ofx.account.institution.organization.strip()
+
+        transactions = []
+        for transaction in ofx.account.statement.transactions:
+            data = transaction.date.strftime("%d/%m/%Y")
+            historico = transaction.memo if transaction.memo else transaction.payee
+            documento = transaction.checknum if transaction.checknum else ""
+            debito_credito = "C" if transaction.amount >= 0 else "D"
+            valor = round(transaction.amount, 2)
+            origem_destino = transaction.payee if transaction.payee else ""
+            trans_dict = {
+                "Data": data,
+                "Histórico": historico,
+                "Documento": documento,
+                "Débito/Crédito": debito_credito,
+                "Valor": valor,
+                "Origem/Destino": origem_destino,
+                "Banco": banco
+            }
+            transactions.append(trans_dict)
+
+        return pd.DataFrame(transactions)
+    except Exception as e:
+        st.error(f"Erro ao processar o arquivo OFX: {e}")
+        logger.exception("Erro durante o processamento do arquivo OFX:")
+        return pd.DataFrame()
+    
 # Interface principal do Streamlit
-st.title("Extratórios - Processamento Inteligente de Arquivos (v4)")
+st.title("Extratórios - Processamento Inteligente de Arquivos (v5)")
 st.write("Faça o upload de arquivos PDF, Imagem, Texto ou CSV para extrair informações.")
 
 uploaded_files = st.file_uploader("Carregue arquivos PDF, Imagem, Texto ou CSV", 
-                                  type=['pdf', 'png', 'jpg', 'jpeg', 'txt', 'csv'], 
+                                  type=['pdf', 'png', 'jpg', 'jpeg', 'txt', 'csv', 'ofx'], 
                                   accept_multiple_files=True)
 
 for uploaded_file in uploaded_files:
@@ -155,7 +211,14 @@ for uploaded_file in uploaded_files:
     file_bytes = uploaded_file.read()
     mime_type = uploaded_file.type
     st.write(f"🔄 Extraindo dados do arquivo ({mime_type})...")
-    dados_extrato, foi_truncado = extrair_informacoes(file_bytes, mime_type)
+
+    # Verifica se o arquivo é OFX com base na extensão
+    if uploaded_file.name.lower().endswith(".ofx"):
+        # Se desejar, pode definir o nome do banco manualmente ou extrair de alguma outra forma
+        dados_extrato = extrair_ofx(file_bytes)
+        foi_truncado = False  # Não se aplica para OFX
+    else:
+        dados_extrato, foi_truncado = extrair_informacoes(file_bytes, mime_type)
 
     if foi_truncado:
         st.warning("⚠️ A resposta foi cortada devido ao limite de tokens! Apenas as transações completas foram extraídas.")
