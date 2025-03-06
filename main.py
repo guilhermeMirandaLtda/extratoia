@@ -244,7 +244,7 @@ for uploaded_file in uploaded_files:
         resumo = pd.DataFrame({
             "Categoria": ["Crédito", "Débito", "Total"],
             "Quantidade": [credit_count, debit_count, total_count],
-            "Valor": [credit_total, debit_total, saldo_total]
+            "Valor": [f"{credit_total:,.2f}", f"{debit_total:,.2f}", f"{saldo_total:,.2f}"]
         }, columns=["Categoria", "Quantidade", "Valor"],)
         
         col1, col2 = st.columns(2)
