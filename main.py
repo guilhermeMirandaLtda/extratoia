@@ -84,7 +84,14 @@ def extrair_ofx(file_bytes):
     try:
         file_str = file_bytes.decode("us-ascii", errors="ignore")
         ofx = OfxParser.parse(io.StringIO(file_str))
-        banco = ofx.account.institution.organization.strip() if hasattr(ofx, "account") else ""
+        
+        # Verifica se a organização do banco está presente
+        banco = ""
+        if hasattr(ofx, "account") and ofx.account and hasattr(ofx.account, "institution"):
+            if ofx.account.institution and hasattr(ofx.account.institution, "organization"):
+                banco = ofx.account.institution.organization.strip()
+                
+        #banco = ofx.account.institution.organization.strip() if hasattr(ofx, "account") else ""
         transactions = [
             {
                 "Data": t.date.strftime("%d/%m/%Y"),
@@ -103,7 +110,7 @@ def extrair_ofx(file_bytes):
         logger.exception("Erro durante o processamento do arquivo OFX:")
         return pd.DataFrame()
 
-st.title("Extratórios - Processamento Inteligente de Arquivos (v6)")
+st.title("Extratórios - Processamento Inteligente de Arquivos (v7)")
 st.write("Faça o upload de arquivos PDF, Imagem, Texto, CSV ou OFX para extrair informações.")
 
 uploaded_files = st.file_uploader(
