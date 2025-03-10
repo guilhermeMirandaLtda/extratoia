@@ -7,6 +7,7 @@ import os
 import logging
 import re
 from ofxparse import OfxParser 
+from banco import bancos
 
 st.set_page_config(
     page_title="Extratórios",
@@ -33,6 +34,13 @@ if not api_key:
     st.stop()
 
 genai.configure(api_key=api_key)
+
+def get_banco_nome(bank_id):
+    """Retorna o nome do banco correspondente ao código COMPE do BANKID no OFX."""
+    for banco in bancos:
+        if banco["COMPE"] == bank_id:  # Converte o BANKID para inteiro antes da comparação
+            return banco["Banco"]
+    return "Banco Desconhecido"  # Caso o código não seja encontrado na lista
 
 def extrair_informacoes(file_bytes, mime_type) -> pd.DataFrame:
     """Extrai dados de arquivos não-OFX utilizando o modelo do Google Generative AI."""
@@ -85,13 +93,23 @@ def extrair_ofx(file_bytes):
         file_str = file_bytes.decode("us-ascii", errors="ignore")
         ofx = OfxParser.parse(io.StringIO(file_str))
         
-        # Verifica se a organização do banco está presente
-        banco = ""
-        if hasattr(ofx, "account") and ofx.account and hasattr(ofx.account, "institution"):
-            if ofx.account.institution and hasattr(ofx.account.institution, "organization"):
-                banco = ofx.account.institution.organization.strip()
+
+        # Obtém o código do banco a partir da tag BANKID ou outra possível localização
+        bank_id = ""
+        if not bank_id:
+            match = re.search(r"<BANKID>(\d+)", file_str)  # Busca padrão "<BANKID>xxxx"
+            if match:
+                bank_id = match.group(1).strip()
+
+        logger.debug(f"Bank ID extraído após verificação: {bank_id}")  # Log do BANKID para depuração
+
+
+        logger.debug(f"Bank ID extraído: {bank_id}")  # Log do BANKID para depuração
+
+        # Busca o nome do banco com base no código BANKID
+        banco = get_banco_nome(bank_id) if bank_id else "Banco Desconhecido"
                 
-        #banco = ofx.account.institution.organization.strip() if hasattr(ofx, "account") else ""
+                
         transactions = [
             {
                 "Data": t.date.strftime("%d/%m/%Y"),
@@ -110,7 +128,7 @@ def extrair_ofx(file_bytes):
         logger.exception("Erro durante o processamento do arquivo OFX:")
         return pd.DataFrame()
 
-st.title("Extratórios - Processamento Inteligente de Arquivos (v7)")
+st.title("Extratórios - Processamento Inteligente de Arquivos (v9)")
 st.write("Faça o upload de arquivos PDF, Imagem, Texto, CSV ou OFX para extrair informações.")
 
 uploaded_files = st.file_uploader(
