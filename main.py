@@ -103,8 +103,8 @@ def extrair_ofx(file_bytes):
         logger.exception("Erro durante o processamento do arquivo OFX:")
         return pd.DataFrame()
 
-st.title("Extratórios - Processamento Inteligente de Arquivos")
-st.write("Faça o upload de arquivos para extrair informações financeiras.")
+st.title("Extratórios - Processamento Inteligente de Arquivos (v6)")
+st.write("Faça o upload de arquivos PDF, Imagem, Texto, CSV ou OFX para extrair informações.")
 
 uploaded_files = st.file_uploader(
     "Carregue arquivos PDF, Imagem, Texto, CSV ou OFX", 
