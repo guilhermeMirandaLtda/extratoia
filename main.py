@@ -1,19 +1,18 @@
 import streamlit as st
 import pandas as pd
-import google.generativeai as genai
-import json
 import io
 import os
 import logging
 import re
 from ofxparse import OfxParser 
+from version import VERSION
 from banco import bancos
 
 st.set_page_config(
     page_title="Extratórios",
     page_icon="🧊",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 logging.basicConfig(
@@ -23,74 +22,98 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-try:
-    api_key = st.secrets["google"]["api_key"]
-except (AttributeError, KeyError):
-    api_key = os.getenv("GOOGLE_API_KEY")
-
-if not api_key:
-    st.error("🔴 ERRO: A chave da API do Google não foi encontrada!")
-    logger.error("API Key não encontrada.")
-    st.stop()
-
-genai.configure(api_key=api_key)
-
 def get_banco_nome(bank_id):
     """Retorna o nome do banco correspondente ao código COMPE do BANKID no OFX."""
+    # Normaliza removendo zeros à esquerda para comparação consistente
+    bank_id_norm = bank_id.lstrip("0") if bank_id else ""
     for banco in bancos:
-        if banco["COMPE"] == bank_id:  # Converte o BANKID para inteiro antes da comparação
+        compe_norm = banco["COMPE"].lstrip("0") if banco["COMPE"] else ""
+        if compe_norm == bank_id_norm:
             return banco["Banco"]
-    return "Banco Desconhecido"  # Caso o código não seja encontrado na lista
+    return "Banco Desconhecido"
 
-def extrair_informacoes(file_bytes, mime_type) -> pd.DataFrame:
-    """Extrai dados de arquivos não-OFX utilizando o modelo do Google Generative AI."""
-    try:
-        file_obj = io.BytesIO(file_bytes)
-        uploaded_file = genai.upload_file(file_obj, mime_type=mime_type)
-        prompt = """
-        Você é um assistente especializado em **extração de dados financeiros** com foco em **análise e processamento de extratos bancários** de diferentes formatos e modelos.
 
-        **Objetivo**:  
-        Converter as informações do extrato bancário em um **JSON bem estruturado e validado**, garantindo que os campos sejam coerentes e que **não haja erros de formatação**.
-
-        **Instruções**:
-        - Extraia os dados e retorne um JSON **validado e bem formatado**, garantindo que:
-            - Nenhum campo seja cortado.
-            - O JSON seja **sempre fechado corretamente**.
-            - **Nunca** retorne JSON truncado. Se necessário, adicione `]` no final para garantir integridade.
-            - Os valores numéricos tenham **ponto como separador decimal**.
-            - Se houver erro, retorne **[]** (um array vazio) ao invés de um JSON inválido.
-            - Remova caracteres especiais ou trechos irrelevantes antes de retornar a resposta.
-                    
-        **Estrutura esperada do JSON**:
-            "Data": "DD/MM/AAAA",
-            "Histórico": "Descrição da transação, por exemplo: Transferência, Pagamento, Compra, IOF, Pix enviado",
-            "Documento": "Número do documento da transação, se disponível. Caso contrário, manter vazio.",            
-            "Valor": "Valor da transação com até 2 casas decimais, negativo para Débito, positivo para Crédito",
-            "Débito/Crédito": "D para Débito, C para Crédito",
-            "Origem/Destino": "Nome da pessoa ou empresa envolvida na transação, se disponível",
-            "Banco": "Nome do banco ou instituição financeira do extrato"
-        """
-        response = genai.GenerativeModel("gemini-2.0-flash-thinking-exp-01-21").generate_content(
-            [prompt, uploaded_file]
-        )
-        text_response = response.text.strip()
-        match = re.search(r'(\[.*\])', text_response, re.DOTALL)
-        json_data = match.group(1) if match else "[]"
-        data = json.loads(json_data)
-        df = pd.DataFrame(data)
-        df["Valor"] = df["Valor"].abs()
-        df["Valor"] = df["Valor"].map(lambda x: f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
-        return df
-    except Exception as e:
-        st.error(f"Erro ao processar o arquivo: {e}")
-        logger.exception("Erro durante o processamento do arquivo:")
-        return pd.DataFrame()
+def _normalizar_ofx(file_str):
+    """Normaliza o conteúdo OFX: corrige cabeçalho, datas, transações inválidas e valores."""
+    from datetime import datetime as _dt
+    
+    # 0. Normaliza cabeçalho OFX (remove espaços extras nos valores)
+    # Ex: "ENCODING: UTF - 8" -> "ENCODING:UTF-8"
+    header_end = file_str.find("<")
+    if header_end > 0:
+        header_part = file_str[:header_end]
+        body_part = file_str[header_end:]
+        lines = header_part.splitlines(True)
+        normalized_lines = []
+        for line in lines:
+            if ":" in line:
+                key, _, value = line.partition(":")
+                # Remove espaços do key e do value, e remove espaços internos do value
+                clean_value = value.strip().replace(" ", "")
+                # Preserva a quebra de linha original
+                ending = ""
+                if line.endswith("\r\n"):
+                    ending = "\r\n"
+                elif line.endswith("\n"):
+                    ending = "\n"
+                normalized_lines.append("{}:{}{}".format(key.strip(), clean_value, ending))
+            else:
+                normalized_lines.append(line)
+        file_str = "".join(normalized_lines) + body_part
+    
+    # 1. Converte datas no formato dd/mm/yyyy HH:mm:ss para YYYYMMDDHHMMSS
+    def _converter_data(match):
+        tag = match.group(1)
+        data_str = match.group(2).strip()
+        try:
+            dt = _dt.strptime(data_str, "%d/%m/%Y %H:%M:%S")
+            return f"<{tag}>{dt.strftime('%Y%m%d%H%M%S')}"
+        except ValueError:
+            return match.group(0)
+    
+    tags_data = r"<(DTSERVER|DTACCTUP|DTSTART|DTEND|DTPOSTED|DTUSER|DTAVAIL)>"
+    pattern = tags_data + r"\s*(\d{2}/\d{2}/\d{4}\s+\d{2}:\d{2}:\d{2})"
+    file_str = re.sub(pattern, _converter_data, file_str)
+    
+    # 2. Remove blocos <STMTTRN> com TRNAMT ou FITID vazios (ex: "Saldo anterior")
+    def _filtrar_transacao(match):
+        bloco = match.group(0)
+        # Se TRNAMT estiver vazio (tag seguida de outra tag ou fechamento)
+        if re.search(r"<TRNAMT>\s*<", bloco) or re.search(r"<TRNAMT>\s*$", bloco, re.MULTILINE):
+            return ""
+        # Se FITID estiver vazio
+        if re.search(r"<FITID>\s*<", bloco) or re.search(r"<FITID>\s*$", bloco, re.MULTILINE):
+            return ""
+        return bloco
+    
+    file_str = re.sub(
+        r"<STMTTRN>.*?</STMTTRN>",
+        _filtrar_transacao,
+        file_str,
+        flags=re.DOTALL
+    )
+    
+    # 3. Normaliza valores monetários no formato brasileiro (ex: 9.500.00 -> 9500.00)
+    def _normalizar_valor(match):
+        valor_str = match.group(1).strip()
+        # Se tem formato brasileiro (pontos como milhar): ex "9.500.00" ou "63.592.70"
+        # Padrão: dígitos seguidos de .ddd uma ou mais vezes, terminando em .dd
+        if re.match(r"^-?\d{1,3}(\.\d{3})+\.\d{2}$", valor_str):
+            # Remove os pontos de milhar, mantém o último como decimal
+            partes = valor_str.rsplit(".", 1)  # separa na última ocorrência
+            inteiro = partes[0].replace(".", "")  # remove pontos de milhar
+            return "<TRNAMT>{}.{}".format(inteiro, partes[1])
+        return match.group(0)
+    
+    file_str = re.sub(r"<TRNAMT>([^<\n]+)", _normalizar_valor, file_str)
+    
+    return file_str
 
 def extrair_ofx(file_bytes):
     """Processa arquivos OFX e retorna um DataFrame."""
     try:
         file_str = file_bytes.decode("us-ascii", errors="ignore")
+        file_str = _normalizar_ofx(file_str)
         ofx = OfxParser.parse(io.StringIO(file_str))
         
 
@@ -108,6 +131,12 @@ def extrair_ofx(file_bytes):
 
         # Busca o nome do banco com base no código BANKID
         banco = get_banco_nome(bank_id) if bank_id else "Banco Desconhecido"
+        
+        # Fallback: se não encontrou na lista, tenta usar a tag <ORG> do OFX
+        if banco == "Banco Desconhecido":
+            org_match = re.search(r"<ORG>([^<\n]+)", file_str)
+            if org_match:
+                banco = org_match.group(1).strip()
                 
                 
         transactions = [
@@ -128,12 +157,13 @@ def extrair_ofx(file_bytes):
         logger.exception("Erro durante o processamento do arquivo OFX:")
         return pd.DataFrame()
 
-st.title("Extratórios - Processamento Inteligente de Arquivos (v9)")
-st.write("Faça o upload de arquivos PDF, Imagem, Texto, CSV ou OFX para extrair informações.")
+st.title("Extratórios - Processamento de Extratos OFX")
+st.write("Faça o upload de arquivos OFX para extrair informações financeiras.")
+st.caption(f"Versão: {VERSION}")
 
 uploaded_files = st.file_uploader(
-    "Carregue arquivos PDF, Imagem, Texto, CSV ou OFX", 
-    type=['pdf', 'png', 'jpg', 'jpeg', 'txt', 'csv', 'ofx'], 
+    "Carregue arquivos OFX", 
+    type=['ofx'], 
     accept_multiple_files=True
 )
 
@@ -141,10 +171,9 @@ todos_dados = []
 for uploaded_file in uploaded_files:
     st.subheader(f"📄 Processando: {uploaded_file.name}")
     file_bytes = uploaded_file.read()
-    mime_type = uploaded_file.type
-    st.write(f"🔄 Extraindo dados do arquivo ({mime_type})...")
+    st.write(f"🔄 Extraindo dados do arquivo OFX...")
     
-    dados_extrato = extrair_ofx(file_bytes) if uploaded_file.name.lower().endswith(".ofx") else extrair_informacoes(file_bytes, mime_type)
+    dados_extrato = extrair_ofx(file_bytes)
     
     if not dados_extrato.empty:
         todos_dados.append(dados_extrato)

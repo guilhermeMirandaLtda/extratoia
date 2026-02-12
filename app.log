@@ -1,0 +1,235 @@
+2026-02-12 20:18:42,612 - ERROR - Erro durante o processamento do arquivo OFX:
+Traceback (most recent call last):
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1002, in parseTransaction
+    transaction.amount = cls.toDecimal(amt_tag)
+                         ~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1094, in toDecimal
+    d = tag.contents[0].strip()
+        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Guilherme\Documents\_PROJETO\extratorio\main.py", line 36, in extrair_ofx
+    ofx = OfxParser.parse(io.StringIO(file_str))
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 447, in parse
+    ofx_obj.accounts += cls.parseStmtrs(stmtrs_ofx, AccountType.Bank)
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 849, in parseStmtrs
+    account.statement = cls.parseStatement(stmtrs_ofx)
+                        ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 952, in parseStatement
+    cls.parseTransaction(transaction_ofx))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1004, in parseTransaction
+    raise OfxParserException("Invalid Transaction Date")
+ofxparse.ofxparse.OfxParserException: Invalid Transaction Date
+2026-02-12 20:24:32,478 - ERROR - Erro durante o processamento do arquivo OFX:
+Traceback (most recent call last):
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1002, in parseTransaction
+    transaction.amount = cls.toDecimal(amt_tag)
+                         ~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1094, in toDecimal
+    d = tag.contents[0].strip()
+        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Guilherme\Documents\_PROJETO\extratorio\main.py", line 55, in extrair_ofx
+    ofx = OfxParser.parse(io.StringIO(file_str))
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 447, in parse
+    ofx_obj.accounts += cls.parseStmtrs(stmtrs_ofx, AccountType.Bank)
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 849, in parseStmtrs
+    account.statement = cls.parseStatement(stmtrs_ofx)
+                        ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 952, in parseStatement
+    cls.parseTransaction(transaction_ofx))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1004, in parseTransaction
+    raise OfxParserException("Invalid Transaction Date")
+ofxparse.ofxparse.OfxParserException: Invalid Transaction Date
+2026-02-12 20:24:38,822 - ERROR - Erro durante o processamento do arquivo OFX:
+Traceback (most recent call last):
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1002, in parseTransaction
+    transaction.amount = cls.toDecimal(amt_tag)
+                         ~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1094, in toDecimal
+    d = tag.contents[0].strip()
+        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Guilherme\Documents\_PROJETO\extratorio\main.py", line 55, in extrair_ofx
+    ofx = OfxParser.parse(io.StringIO(file_str))
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 447, in parse
+    ofx_obj.accounts += cls.parseStmtrs(stmtrs_ofx, AccountType.Bank)
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 849, in parseStmtrs
+    account.statement = cls.parseStatement(stmtrs_ofx)
+                        ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 952, in parseStatement
+    cls.parseTransaction(transaction_ofx))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1004, in parseTransaction
+    raise OfxParserException("Invalid Transaction Date")
+ofxparse.ofxparse.OfxParserException: Invalid Transaction Date
+2026-02-12 20:24:38,866 - ERROR - Erro durante o processamento do arquivo OFX:
+Traceback (most recent call last):
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1002, in parseTransaction
+    transaction.amount = cls.toDecimal(amt_tag)
+                         ~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1094, in toDecimal
+    d = tag.contents[0].strip()
+        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Guilherme\Documents\_PROJETO\extratorio\main.py", line 55, in extrair_ofx
+    ofx = OfxParser.parse(io.StringIO(file_str))
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 447, in parse
+    ofx_obj.accounts += cls.parseStmtrs(stmtrs_ofx, AccountType.Bank)
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 849, in parseStmtrs
+    account.statement = cls.parseStatement(stmtrs_ofx)
+                        ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 952, in parseStatement
+    cls.parseTransaction(transaction_ofx))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1004, in parseTransaction
+    raise OfxParserException("Invalid Transaction Date")
+ofxparse.ofxparse.OfxParserException: Invalid Transaction Date
+2026-02-12 20:24:44,055 - ERROR - Erro durante o processamento do arquivo OFX:
+Traceback (most recent call last):
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1002, in parseTransaction
+    transaction.amount = cls.toDecimal(amt_tag)
+                         ~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1094, in toDecimal
+    d = tag.contents[0].strip()
+        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Guilherme\Documents\_PROJETO\extratorio\main.py", line 55, in extrair_ofx
+    ofx = OfxParser.parse(io.StringIO(file_str))
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 447, in parse
+    ofx_obj.accounts += cls.parseStmtrs(stmtrs_ofx, AccountType.Bank)
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 849, in parseStmtrs
+    account.statement = cls.parseStatement(stmtrs_ofx)
+                        ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 952, in parseStatement
+    cls.parseTransaction(transaction_ofx))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1004, in parseTransaction
+    raise OfxParserException("Invalid Transaction Date")
+ofxparse.ofxparse.OfxParserException: Invalid Transaction Date
+2026-02-12 20:24:44,107 - ERROR - Erro durante o processamento do arquivo OFX:
+Traceback (most recent call last):
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1002, in parseTransaction
+    transaction.amount = cls.toDecimal(amt_tag)
+                         ~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1094, in toDecimal
+    d = tag.contents[0].strip()
+        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Guilherme\Documents\_PROJETO\extratorio\main.py", line 55, in extrair_ofx
+    ofx = OfxParser.parse(io.StringIO(file_str))
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 447, in parse
+    ofx_obj.accounts += cls.parseStmtrs(stmtrs_ofx, AccountType.Bank)
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 849, in parseStmtrs
+    account.statement = cls.parseStatement(stmtrs_ofx)
+                        ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 952, in parseStatement
+    cls.parseTransaction(transaction_ofx))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1004, in parseTransaction
+    raise OfxParserException("Invalid Transaction Date")
+ofxparse.ofxparse.OfxParserException: Invalid Transaction Date
+2026-02-12 20:24:44,253 - ERROR - Erro durante o processamento do arquivo OFX:
+Traceback (most recent call last):
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1053, in parseTransaction
+    transaction.id = id_tag.contents[0].strip()
+                     ~~~~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Guilherme\Documents\_PROJETO\extratorio\main.py", line 55, in extrair_ofx
+    ofx = OfxParser.parse(io.StringIO(file_str))
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 447, in parse
+    ofx_obj.accounts += cls.parseStmtrs(stmtrs_ofx, AccountType.Bank)
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 849, in parseStmtrs
+    account.statement = cls.parseStatement(stmtrs_ofx)
+                        ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 952, in parseStatement
+    cls.parseTransaction(transaction_ofx))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 1055, in parseTransaction
+    raise OfxParserException(six.u("Empty FIT id (a required \
+        field)"))
+ofxparse.ofxparse.OfxParserException: Empty FIT id (a required                     field)
+2026-02-12 20:28:27,806 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:28:27,806 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:29:08,728 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:29:08,728 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:29:08,834 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:29:08,834 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:29:09,089 - DEBUG - Bank ID extraído após verificação: 1
+2026-02-12 20:29:09,089 - DEBUG - Bank ID extraído: 1
+2026-02-12 20:30:56,190 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:30:56,191 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:30:56,265 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:30:56,265 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:30:56,776 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:30:56,777 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:31:00,563 - ERROR - Erro durante o processamento do arquivo OFX:
+Traceback (most recent call last):
+  File "C:\Users\Guilherme\Documents\_PROJETO\extratorio\main.py", line 89, in extrair_ofx
+    ofx = OfxParser.parse(io.StringIO(file_str))
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 396, in parse
+    ofx_file = OfxPreprocessedFile(file_handle)
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 155, in __init__
+    super(OfxPreprocessedFile, self).__init__(fh)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 83, in __init__
+    self.handle_encoding()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Guilherme\AppData\Roaming\Python\Python313\site-packages\ofxparse\ofxparse.py", line 133, in handle_encoding
+    codec = codecs.lookup(encoding)
+                          ^^^^^^^^
+UnboundLocalError: cannot access local variable 'encoding' where it is not associated with a value
+2026-02-12 20:34:18,689 - DEBUG - Bank ID extraído após verificação: 336
+2026-02-12 20:34:18,690 - DEBUG - Bank ID extraído: 336
+2026-02-12 20:34:25,233 - DEBUG - Bank ID extraído após verificação: 336
+2026-02-12 20:34:25,233 - DEBUG - Bank ID extraído: 336
+2026-02-12 20:34:25,407 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:34:25,407 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:34:25,559 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:34:25,560 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:34:25,800 - DEBUG - Bank ID extraído após verificação: 1
+2026-02-12 20:34:25,800 - DEBUG - Bank ID extraído: 1
+2026-02-12 20:37:35,549 - DEBUG - Bank ID extraído após verificação: 336
+2026-02-12 20:37:35,550 - DEBUG - Bank ID extraído: 336
+2026-02-12 20:37:35,618 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:37:35,618 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:37:35,731 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:37:35,732 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:37:35,904 - DEBUG - Bank ID extraído após verificação: 1
+2026-02-12 20:37:35,905 - DEBUG - Bank ID extraído: 1

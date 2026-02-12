@@ -68,5 +68,14 @@ bancos = [
     {"Banco": "Banco SAFRA", "COMPE": "0422", "ISPB": 58160789},
     {"Banco": "Banco SANTANDER (Brasil)", "COMPE": "0033", "ISPB": 90400888},
     {"Banco": "CAIXA ECONOMICA FEDERAL", "COMPE": "0104", "ISPB": 360305},
-    {"Banco": "ITAÚ UNIBANCO", "COMPE": "0341", "ISPB": 60701190}
+    {"Banco": "ITAÚ UNIBANCO", "COMPE": "0341", "ISPB": 60701190},
+    {"Banco": "Banco C6 S.A.", "COMPE": "0336", "ISPB": 31872495},
+    {"Banco": "NU PAGAMENTOS (Nubank)", "COMPE": "0260", "ISPB": 18236120},
+    {"Banco": "Banco INTER", "COMPE": "0077", "ISPB": 416968},
+    {"Banco": "Banco ORIGINAL", "COMPE": "0212", "ISPB": 92894922},
+    {"Banco": "Banco PAN", "COMPE": "0623", "ISPB": 59285411},
+    {"Banco": "Banco NEON", "COMPE": "0735", "ISPB": 11758741},
+    {"Banco": "PAGSEGURO (PagBank)", "COMPE": "0290", "ISPB": 8561701},
+    {"Banco": "Banco SICOOB", "COMPE": "0756", "ISPB": 2038232},
+    {"Banco": "Banco MERCANTIL do Brasil", "COMPE": "0389", "ISPB": 17184037}
 ]
