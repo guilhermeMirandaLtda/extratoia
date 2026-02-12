@@ -233,3 +233,35 @@ UnboundLocalError: cannot access local variable 'encoding' where it is not assoc
 2026-02-12 20:37:35,732 - DEBUG - Bank ID extraído: 001
 2026-02-12 20:37:35,904 - DEBUG - Bank ID extraído após verificação: 1
 2026-02-12 20:37:35,905 - DEBUG - Bank ID extraído: 1
+2026-02-12 20:41:16,912 - DEBUG - Bank ID extraído após verificação: 336
+2026-02-12 20:41:16,913 - DEBUG - Bank ID extraído: 336
+2026-02-12 20:41:17,033 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:41:17,034 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:41:17,136 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:41:17,136 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:41:17,407 - DEBUG - Bank ID extraído após verificação: 1
+2026-02-12 20:41:17,408 - DEBUG - Bank ID extraído: 1
+2026-02-12 20:42:48,235 - DEBUG - Bank ID extraído após verificação: 336
+2026-02-12 20:42:48,236 - DEBUG - Bank ID extraído: 336
+2026-02-12 20:42:48,299 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:42:48,299 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:42:48,358 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:42:48,358 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:42:48,542 - DEBUG - Bank ID extraído após verificação: 1
+2026-02-12 20:42:48,542 - DEBUG - Bank ID extraído: 1
+2026-02-12 20:42:59,589 - DEBUG - Bank ID extraído após verificação: 336
+2026-02-12 20:42:59,590 - DEBUG - Bank ID extraído: 336
+2026-02-12 20:42:59,682 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:42:59,683 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:42:59,749 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:42:59,749 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:42:59,883 - DEBUG - Bank ID extraído após verificação: 1
+2026-02-12 20:42:59,886 - DEBUG - Bank ID extraído: 1
+2026-02-12 20:43:07,028 - DEBUG - Bank ID extraído após verificação: 336
+2026-02-12 20:43:07,028 - DEBUG - Bank ID extraído: 336
+2026-02-12 20:43:07,130 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:43:07,131 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:43:07,266 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:43:07,269 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:43:07,496 - DEBUG - Bank ID extraído após verificação: 1
+2026-02-12 20:43:07,497 - DEBUG - Bank ID extraído: 1
