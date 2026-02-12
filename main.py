@@ -16,8 +16,7 @@ st.set_page_config(
 )
 
 logging.basicConfig(
-    filename="app.log",
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
