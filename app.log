@@ -265,3 +265,11 @@ UnboundLocalError: cannot access local variable 'encoding' where it is not assoc
 2026-02-12 20:43:07,269 - DEBUG - Bank ID extraído: 001
 2026-02-12 20:43:07,496 - DEBUG - Bank ID extraído após verificação: 1
 2026-02-12 20:43:07,497 - DEBUG - Bank ID extraído: 1
+2026-02-12 20:56:23,170 - DEBUG - Bank ID extraído após verificação: 336
+2026-02-12 20:56:23,172 - DEBUG - Bank ID extraído: 336
+2026-02-12 20:56:23,237 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:56:23,238 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:56:23,293 - DEBUG - Bank ID extraído após verificação: 001
+2026-02-12 20:56:23,293 - DEBUG - Bank ID extraído: 001
+2026-02-12 20:56:23,444 - DEBUG - Bank ID extraído após verificação: 1
+2026-02-12 20:56:23,444 - DEBUG - Bank ID extraído: 1

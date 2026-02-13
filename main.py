@@ -104,6 +104,9 @@ def _normalizar_ofx(file_str):
             return "<TRNAMT>{}.{}".format(inteiro, partes[1])
         return match.group(0)
     
+    # 2.5 Remove asteriscos ou outros caracteres estranhos do valor (ex: "14.409.33 *")
+    file_str = re.sub(r"<TRNAMT>([^<\n]+)\*", r"<TRNAMT>\1", file_str)
+    
     file_str = re.sub(r"<TRNAMT>([^<\n]+)", _normalizar_valor, file_str)
     
     return file_str
@@ -111,9 +114,18 @@ def _normalizar_ofx(file_str):
 def extrair_ofx(file_bytes):
     """Processa arquivos OFX e retorna um DataFrame."""
     try:
-        file_str = file_bytes.decode("us-ascii", errors="ignore")
+        # Tenta decificar como utf-8, fallback para latin-1
+        try:
+            file_str = file_bytes.decode("utf-8")
+        except UnicodeDecodeError:
+            file_str = file_bytes.decode("latin-1", errors="ignore")
+            
         file_str = _normalizar_ofx(file_str)
-        ofx = OfxParser.parse(io.StringIO(file_str))
+        
+        # Converte de volta para bytes (UTF-8) para o OfxParser, 
+        # pois ele pode tentar validar o header ENCODING:UTF-8
+        file_bytes_normalized = file_str.encode("utf-8")
+        ofx = OfxParser.parse(io.BytesIO(file_bytes_normalized))
         
 
         # Obtém o código do banco a partir da tag BANKID ou outra possível localização
