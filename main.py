@@ -36,29 +36,59 @@ def _normalizar_ofx(file_str):
     """Normaliza o conteúdo OFX: corrige cabeçalho, datas, transações inválidas e valores."""
     from datetime import datetime as _dt
     
-    # 0. Normaliza cabeçalho OFX (remove espaços extras nos valores)
-    # Ex: "ENCODING: UTF - 8" -> "ENCODING:UTF-8"
-    header_end = file_str.find("<")
-    if header_end > 0:
-        header_part = file_str[:header_end]
-        body_part = file_str[header_end:]
-        lines = header_part.splitlines(True)
-        normalized_lines = []
-        for line in lines:
-            if ":" in line:
-                key, _, value = line.partition(":")
-                # Remove espaços do key e do value, e remove espaços internos do value
-                clean_value = value.strip().replace(" ", "")
-                # Preserva a quebra de linha original
-                ending = ""
-                if line.endswith("\r\n"):
-                    ending = "\r\n"
-                elif line.endswith("\n"):
-                    ending = "\n"
-                normalized_lines.append("{}:{}{}".format(key.strip(), clean_value, ending))
-            else:
-                normalized_lines.append(line)
-        file_str = "".join(normalized_lines) + body_part
+    # Normaliza newlines para garantir que regex e splits funcionem bem
+    file_str = file_str.replace('\r\n', '\n').replace('\r', '\n')
+    
+    # Remove linhas em branco/espaços do inicio para evitar que ofxparse pare de ler headers
+    file_str = file_str.lstrip()
+
+    # 0. Normaliza cabeçalho OFX
+    # Verifica se o arquivo começa diretamente com uma tag (sem headers de chave:valor)
+    # Alguns arquivos começam com <OFX> ou <OFXHEADER> diretamente
+    if file_str.strip().startswith("<"):
+        # Adiciona headers padrão forçando UTF-8
+        headers = """OFXHEADER:100
+DATA:OFXSGML
+VERSION:102
+SECURITY:NONE
+ENCODING:UTF-8
+CHARSET:NONE
+COMPRESSION:NONE
+OLDFILEUID:NONE
+NEWFILEUID:NONE
+"""
+        file_str = headers + "\n" + file_str
+    else:
+        # Se TEM headers, vamos garantir que são UTF-8
+        
+        # 1. Substitui ENCODING e CHARSET usando regex insensível a maiúsculas
+        file_str = re.sub(r"^ENCODING:.*$", "ENCODING:UTF-8", file_str, flags=re.MULTILINE | re.IGNORECASE)
+        file_str = re.sub(r"^CHARSET:.*$", "CHARSET:NONE", file_str, flags=re.MULTILINE | re.IGNORECASE)
+
+        # 0. Normaliza cabeçalho existente (remove espaços extras nos valores) - mantido para outros campos
+        # Ex: "ENCODING: UTF - 8" -> "ENCODING:UTF-8"
+        header_end = file_str.find("<")
+        if header_end > 0:
+            header_part = file_str[:header_end]
+            body_part = file_str[header_end:]
+            
+            # Debug: Logar headers após substituição
+            logger.info("Headers normalizados (inicio):")
+            logger.info(header_part[:500])
+            
+            lines = header_part.splitlines(True)
+            normalized_lines = []
+            for line in lines:
+                if ":" in line:
+                    key, _, value = line.partition(":")
+                    # Remove espaços do key e do value, e remove espaços internos do value
+                    clean_value = value.strip().replace(" ", "")
+                    # Preserva a quebra de linha original
+                    ending = "\n" 
+                    normalized_lines.append("{}:{}{}".format(key.strip(), clean_value, ending))
+                else:
+                    normalized_lines.append(line)
+            file_str = "".join(normalized_lines) + body_part
     
     # 1. Converte datas no formato dd/mm/yyyy HH:mm:ss para YYYYMMDDHHMMSS
     def _converter_data(match):
@@ -122,14 +152,27 @@ def extrair_ofx(file_bytes):
             
         file_str = _normalizar_ofx(file_str)
         
-        # Converte de volta para bytes (UTF-8) para o OfxParser, 
-        # pois ele pode tentar validar o header ENCODING:UTF-8
+        # Converte de volta para bytes (UTF-8) para o OfxParser
+        # IMPORTANTE: Usamos BytesIO com utf-8 e garantimos que o header ENCODING:UTF-8 existe.
+        # Isso faz o ofxparse ler corretamente.
         file_bytes_normalized = file_str.encode("utf-8")
-        ofx = OfxParser.parse(io.BytesIO(file_bytes_normalized))
         
+        # Debug: Verificar se o header está lá
+        if b"ENCODING:UTF-8" not in file_bytes_normalized[:1000]:
+            logger.warning("ALERTA: Header ENCODING:UTF-8 não encontrado nos primeiros 1000 bytes!")
+            # Fallback de emergência: força prepend manual novamente se algo deu errado
+            headers = b"OFXHEADER:100\nDATA:OFXSGML\nVERSION:102\nSECURITY:NONE\nENCODING:UTF-8\nCHARSET:NONE\nCOMPRESSION:NONE\nOLDFILEUID:NONE\nNEWFILEUID:NONE\n\n"
+            file_bytes_normalized = headers + file_bytes_normalized
+
+        ofx = OfxParser.parse(io.BytesIO(file_bytes_normalized))        
 
         # Obtém o código do banco a partir da tag BANKID ou outra possível localização
         bank_id = ""
+        if hasattr(ofx.account, "routing_number"):
+             bank_id = ofx.account.routing_number
+        elif hasattr(ofx.account, "bank_id"):
+             bank_id = ofx.account.bank_id
+
         if not bank_id:
             match = re.search(r"<BANKID>(\d+)", file_str)  # Busca padrão "<BANKID>xxxx"
             if match:
@@ -164,7 +207,9 @@ def extrair_ofx(file_bytes):
         ]
         return pd.DataFrame(transactions)
     except Exception as e:
+        import traceback
         st.error(f"Erro ao processar o arquivo OFX: {e}")
+        st.text(traceback.format_exc())
         logger.exception("Erro durante o processamento do arquivo OFX:")
         return pd.DataFrame()
 
